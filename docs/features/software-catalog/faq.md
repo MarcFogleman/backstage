@@ -27,9 +27,11 @@ On the user experience side, a Backstage experience without complete organizatio
 
 ## Can I call the catalog itself from inside a processor / provider?
 
-While it's possible to get hold of a catalog client via the `catalogServiceRef` from `@backstage/plugin-catalog-node`, it's almost never the right thing to do, and we strongly discourage from doing so.
+While it's possible to get hold of a catalog client via the `catalogServiceRef` from `@backstage/plugin-catalog-node`, doing so inside of a processor is almost never the right thing to do, and we strongly discourage from doing so.
 
 The catalog processing loop is a very high-speed system where your entire catalog cluster collaborates to race through all entities at the highest possible rate. The ideal processor does an absolute minimum of work, and immediately relinquishes control back. Performing asynchronous requests to external systems - including the catalog - from processors, can quickly become overwhelming for that external system and starve their resources if they aren't prepared to deal with very high rates of small requests. It also significantly slows down the processing loop, when each step needs to wait for responses. This can lead to work "piling up" in the catalog and delays in seeing entities get updated. The [life of an entity](./life-of-an-entity.md) article shows the sequence of events that happen when an entity goes from original ingestion, through processing, and to becoming final entities.
+
+Calling the catalog from a provider can be done safely, as long as you are mindful of data races and eventual consistency. You are effectively reading from a source to populate other parts of the same source, so take care not to introduce circular data dependencies.
 
 See also [the related validation topic](#can-i-validate-relations-in-processors).
 
