@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import {
+  GetEntitiesByRefsRequest,
+  GetEntitiesByRefsResponse,
   GetEntitiesResponse,
   GetEntityFacetsRequest,
   GetEntityFacetsResponse,
@@ -180,6 +182,11 @@ createDevApp()
         },
         async getEntities(): Promise<GetEntitiesResponse> {
           return { items: Object.values(entities) };
+        },
+        async getEntitiesByRefs(
+          request: GetEntitiesByRefsRequest,
+        ): Promise<GetEntitiesByRefsResponse> {
+          return { items: request.entityRefs.map(ref => entities[ref]) };
         },
         async getEntityFacets(
           request: GetEntityFacetsRequest,
