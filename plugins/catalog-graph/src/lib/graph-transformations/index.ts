@@ -15,6 +15,8 @@
  */
 
 export type { GraphTransformer, TransformationContext } from './types';
+export type { GroupByKindOptions } from './group-by-kind';
+export { createGroupByKindTransformer } from './group-by-kind';
 
 import { reduceEdges } from './reduce-edges';
 import { setDistances } from './set-distance';
