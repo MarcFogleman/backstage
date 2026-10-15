@@ -124,6 +124,7 @@ type CatalogGraphPageProps = {
     maxDepth?: number;
     unidirectional?: boolean;
     mergeRelations?: boolean;
+    groupByKind?: boolean;
     direction?: Direction;
     showFilters?: boolean;
     curve?: 'curveStepBefore' | 'curveMonotoneX';
@@ -151,6 +152,8 @@ function CatalogGraphPageContent(
     setUnidirectional,
     mergeRelations,
     setMergeRelations,
+    groupByKind,
+    setGroupByKind,
     direction,
     setDirection,
     curve,
@@ -226,6 +229,11 @@ function CatalogGraphPageContent(
               onChange={setMergeRelations}
               label={t('catalogGraphPage.mergeRelationsSwitchLabel')}
             />
+            <SwitchFilter
+              value={groupByKind}
+              onChange={setGroupByKind}
+              label={t('catalogGraphPage.groupByKindSwitchLabel')}
+            />
           </Grid>
         )}
         <Grid item xs className={classes.fullHeight}>
@@ -255,6 +263,7 @@ function CatalogGraphPageContent(
               }
               mergeRelations={mergeRelations}
               unidirectional={unidirectional}
+              groupByKind={groupByKind}
               showArrowHeads={showArrowHeads}
               onNodeClick={onNodeClick}
               direction={direction}

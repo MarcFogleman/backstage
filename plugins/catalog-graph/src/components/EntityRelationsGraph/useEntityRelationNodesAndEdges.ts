@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useCallback, useEffect, useState } from 'react';
 import useDebounce from 'react-use/esm/useDebounce';
 import { RelationPairs } from '../../lib/types';
 import { EntityEdge, EntityNode } from '../../lib/types';
@@ -24,6 +24,7 @@ import { buildGraph } from '../../lib/graph';
 import {
   BuiltInTransformations,
   builtInTransformations,
+  createGroupByKindTransformer,
   GraphTransformer,
   TransformationContext,
 } from '../../lib/graph-transformations';
@@ -36,6 +37,7 @@ export function useEntityRelationNodesAndEdges({
   maxDepth = Number.POSITIVE_INFINITY,
   unidirectional = true,
   mergeRelations = true,
+  groupByKind = false,
   kinds,
   relations,
   entityFilter,
@@ -46,6 +48,7 @@ export function useEntityRelationNodesAndEdges({
   maxDepth?: number;
   unidirectional?: boolean;
   mergeRelations?: boolean;
+  groupByKind?: boolean;
   kinds?: string[];
   relations?: string[];
   entityFilter?: (entity: Entity) => boolean;
@@ -61,6 +64,24 @@ export function useEntityRelationNodesAndEdges({
     nodes?: EntityNode[];
     edges?: EntityEdge[];
   }>({});
+  const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const rootEntityKey = rootEntityRefs.join(',');
+  useEffect(() => {
+    setExpandedGroups(new Set());
+  }, [rootEntityKey]);
+  const toggleGroup = useCallback(
+    (groupId: string) =>
+      setExpandedGroups(previous => {
+        const next = new Set(previous);
+        if (!next.delete(groupId)) {
+          next.add(groupId);
+        }
+        return next;
+      }),
+    [],
+  );
   const { entities, loading, error } = useEntityRelationGraph({
     rootEntityRefs,
     filter: {
@@ -150,6 +171,16 @@ export function useEntityRelationNodesAndEdges({
         runTransformation('order-forward');
         runTransformation('remove-backward-edges');
       }
+      if (groupByKind) {
+        runTransformation(
+          createGroupByKindTransformer({
+            expandedGroups,
+            onToggleGroup: toggleGroup,
+          }),
+        );
+        // Edges of the grouped nodes now point at the same group node
+        runTransformation('reduce-edges');
+      }
 
       setNodesAndEdges({
         nodes: transformationContext.nodes,
@@ -165,6 +196,9 @@ export function useEntityRelationNodesAndEdges({
       includeRelation,
       unidirectional,
       mergeRelations,
+      groupByKind,
+      expandedGroups,
+      toggleGroup,
       onNodeClick,
       relationPairs,
     ],

@@ -35,6 +35,7 @@ describe('useCatalogGraphPage', () => {
           direction: Direction.RIGHT_LEFT,
           mergeRelations: false,
           unidirectional: false,
+          groupByKind: true,
           showFilters: false,
           selectedKinds: ['API'],
           selectedRelations: [RELATION_MEMBER_OF],
@@ -50,6 +51,7 @@ describe('useCatalogGraphPage', () => {
     expect(result.current.direction).toEqual(Direction.RIGHT_LEFT);
     expect(result.current.mergeRelations).toEqual(false);
     expect(result.current.unidirectional).toEqual(false);
+    expect(result.current.groupByKind).toEqual(true);
     expect(result.current.showFilters).toEqual(false);
     expect(result.current.selectedKinds).toEqual(['api']);
     expect(result.current.selectedRelations).toEqual([RELATION_MEMBER_OF]);
@@ -60,7 +62,7 @@ describe('useCatalogGraphPage', () => {
       history.pushState(
         {},
         '',
-        '?rootEntityRefs[]=b:d/c&maxDepth=2&direction=RL&mergeRelations=false&unidirectional=false&showFilters=false&selectedKinds[]=api&selectedRelations[]=memberOf',
+        '?rootEntityRefs[]=b:d/c&maxDepth=2&direction=RL&mergeRelations=false&unidirectional=false&groupByKind=true&showFilters=false&selectedKinds[]=api&selectedRelations[]=memberOf',
       );
     });
 
@@ -76,6 +78,7 @@ describe('useCatalogGraphPage', () => {
     expect(result.current.direction).toEqual(Direction.RIGHT_LEFT);
     expect(result.current.mergeRelations).toEqual(false);
     expect(result.current.unidirectional).toEqual(false);
+    expect(result.current.groupByKind).toEqual(true);
     expect(result.current.showFilters).toEqual(false);
     expect(result.current.selectedKinds).toEqual(['api']);
     expect(result.current.selectedRelations).toEqual([RELATION_MEMBER_OF]);
@@ -90,13 +93,13 @@ describe('useCatalogGraphPage', () => {
     act(() => result.current.setMaxDepth(5));
 
     expect(window.location.search).toEqual(
-      '?rootEntityRefs%5B%5D=b%3Ad%2Fc&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&direction=RL&showFilters=false&curve=curveMonotoneX',
+      '?rootEntityRefs%5B%5D=b%3Ad%2Fc&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&groupByKind=true&direction=RL&showFilters=false&curve=curveMonotoneX',
     );
 
     act(() => result.current.setUnidirectional(false));
 
     expect(window.location.search).toEqual(
-      '?rootEntityRefs%5B%5D=b%3Ad%2Fc&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&direction=RL&showFilters=false&curve=curveMonotoneX',
+      '?rootEntityRefs%5B%5D=b%3Ad%2Fc&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&groupByKind=true&direction=RL&showFilters=false&curve=curveMonotoneX',
     );
   });
 
@@ -119,7 +122,7 @@ describe('useCatalogGraphPage', () => {
 
     expect(window.history.length).toEqual(oldLength + 1);
     expect(window.location.search).toEqual(
-      '?rootEntityRefs%5B%5D=component%3Adefault%2Fmy&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&direction=RL&showFilters=false&curve=curveMonotoneX',
+      '?rootEntityRefs%5B%5D=component%3Adefault%2Fmy&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&groupByKind=true&direction=RL&showFilters=false&curve=curveMonotoneX',
     );
   });
 
@@ -140,7 +143,7 @@ describe('useCatalogGraphPage', () => {
     );
 
     expect(window.location.search).toEqual(
-      '?rootEntityRefs%5B%5D=component%3Adefault%2Ffirst&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&direction=RL&showFilters=false&curve=curveMonotoneX',
+      '?rootEntityRefs%5B%5D=component%3Adefault%2Ffirst&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&groupByKind=true&direction=RL&showFilters=false&curve=curveMonotoneX',
     );
 
     act(() =>
@@ -150,7 +153,7 @@ describe('useCatalogGraphPage', () => {
     );
 
     expect(window.location.search).toEqual(
-      '?rootEntityRefs%5B%5D=component%3Adefault%2Fsecond&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&direction=RL&showFilters=false&curve=curveMonotoneX',
+      '?rootEntityRefs%5B%5D=component%3Adefault%2Fsecond&maxDepth=5&selectedKinds%5B%5D=api&selectedRelations%5B%5D=memberOf&unidirectional=false&mergeRelations=false&groupByKind=true&direction=RL&showFilters=false&curve=curveMonotoneX',
     );
 
     act(() => {

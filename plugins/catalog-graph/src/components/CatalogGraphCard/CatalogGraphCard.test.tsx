@@ -195,7 +195,7 @@ describe('<CatalogGraphCard/>', () => {
     await renderInTestApp(
       <ApiProvider apis={apis}>
         <EntityProvider entity={entity}>
-          <CatalogGraphCard maxDepth={2} mergeRelations={false} />
+          <CatalogGraphCard maxDepth={2} mergeRelations={false} groupByKind />
         </EntityProvider>
       </ApiProvider>,
       {
@@ -213,7 +213,7 @@ describe('<CatalogGraphCard/>', () => {
     expect(button).toBeInTheDocument();
     expect(button.closest('a')).toHaveAttribute(
       'href',
-      '/catalog-graph?rootEntityRefs%5B%5D=b%3Ad%2Fc&maxDepth=2&unidirectional=true&mergeRelations=false&direction=LR',
+      '/catalog-graph?rootEntityRefs%5B%5D=b%3Ad%2Fc&maxDepth=2&unidirectional=true&mergeRelations=false&groupByKind=true&direction=LR',
     );
   });
 

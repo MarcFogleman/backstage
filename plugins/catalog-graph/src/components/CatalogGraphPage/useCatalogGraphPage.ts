@@ -43,6 +43,8 @@ export type CatalogGraphPageValue = {
   setUnidirectional: Dispatch<React.SetStateAction<boolean>>;
   mergeRelations: boolean;
   setMergeRelations: Dispatch<React.SetStateAction<boolean>>;
+  groupByKind: boolean;
+  setGroupByKind: Dispatch<React.SetStateAction<boolean>>;
   direction: Direction;
   setDirection: Dispatch<React.SetStateAction<Direction>>;
   curve: 'curveStepBefore' | 'curveMonotoneX';
@@ -63,6 +65,7 @@ export function useCatalogGraphPage({
     maxDepth?: number;
     unidirectional?: boolean;
     mergeRelations?: boolean;
+    groupByKind?: boolean;
     direction?: Direction;
     showFilters?: boolean;
     curve?: 'curveStepBefore' | 'curveMonotoneX';
@@ -83,6 +86,7 @@ export function useCatalogGraphPage({
         maxDepth?: string[] | string;
         unidirectional?: string[] | string;
         mergeRelations?: string[] | string;
+        groupByKind?: string[] | string;
         direction?: string[] | Direction;
         showFilters?: string[] | string;
         curve?: string[] | 'curveStepBefore' | 'curveMonotoneX';
@@ -157,6 +161,12 @@ export function useCatalogGraphPage({
       : initialState?.mergeRelations ?? true,
   );
 
+  const [groupByKind, setGroupByKind] = useState<boolean>(() =>
+    typeof query.groupByKind === 'string'
+      ? query.groupByKind === 'true'
+      : initialState?.groupByKind ?? false,
+  );
+
   const [direction, setDirection] = useState<Direction>(() =>
     typeof query.direction === 'string'
       ? query.direction
@@ -189,6 +199,7 @@ export function useCatalogGraphPage({
         selectedRelations,
         unidirectional,
         mergeRelations,
+        groupByKind,
         direction,
         showFilters,
         curve,
@@ -204,6 +215,7 @@ export function useCatalogGraphPage({
     selectedRelations,
     unidirectional,
     mergeRelations,
+    groupByKind,
     direction,
     showFilters,
     rootEntityNames,
@@ -223,6 +235,8 @@ export function useCatalogGraphPage({
     setUnidirectional,
     mergeRelations,
     setMergeRelations,
+    groupByKind,
+    setGroupByKind,
     direction,
     setDirection,
     curve,

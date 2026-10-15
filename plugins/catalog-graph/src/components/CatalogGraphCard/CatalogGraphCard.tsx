@@ -68,6 +68,7 @@ export const CatalogGraphCard = (
     maxDepth = 1,
     unidirectional = true,
     mergeRelations = true,
+    groupByKind = false,
     showArrowHeads,
     direction = Direction.LEFT_RIGHT,
     kinds,
@@ -114,6 +115,7 @@ export const CatalogGraphCard = (
       maxDepth: maxDepth,
       unidirectional,
       mergeRelations,
+      groupByKind: groupByKind || undefined,
       selectedKinds: kinds,
       selectedRelations: relations,
       direction,
@@ -144,6 +146,7 @@ export const CatalogGraphCard = (
         maxDepth={maxDepth}
         unidirectional={unidirectional}
         mergeRelations={mergeRelations}
+        groupByKind={groupByKind}
         direction={direction}
         relationPairs={relationPairs}
         entityFilter={entityFilter}

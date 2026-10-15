@@ -79,6 +79,12 @@ export type EntityRelationsGraphProps = {
   maxDepth?: number;
   unidirectional?: boolean;
   mergeRelations?: boolean;
+  /**
+   * Show entities of the same kind that are related to the same entities as
+   * a single node with a count. Clicking the node expands or collapses it.
+   * Defaults to false.
+   */
+  groupByKind?: boolean;
   kinds?: string[];
   relations?: string[];
   entityFilter?: (entity: Entity) => boolean;
@@ -106,6 +112,7 @@ export const EntityRelationsGraph = (props: EntityRelationsGraphProps) => {
     maxDepth = 2,
     unidirectional = true,
     mergeRelations = true,
+    groupByKind = false,
     kinds,
     relations,
     entityFilter,
@@ -138,6 +145,7 @@ export const EntityRelationsGraph = (props: EntityRelationsGraphProps) => {
     maxDepth,
     unidirectional,
     mergeRelations,
+    groupByKind,
     kinds,
     relations,
     entityFilter,

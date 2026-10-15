@@ -30,6 +30,7 @@ export const catalogGraphTranslationRef = createTranslationRef({
         'Start tracking your component in by adding it to the software catalog.',
       simplifiedSwitchLabel: 'Simplified',
       mergeRelationsSwitchLabel: 'Merge relations',
+      groupByKindSwitchLabel: 'Group by kind',
       zoomOutDescription:
         'Use pinch & zoom to move around the diagram. Click to change active node, shift click to navigate to entity.',
       curveFilter: {

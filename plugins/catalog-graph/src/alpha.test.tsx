@@ -67,6 +67,7 @@ describe('catalog-graph alpha plugin', () => {
         maxDepth: 3,
         unidirectional: false,
         mergeRelations: false,
+        groupByKind: true,
         showArrowHeads: true,
         direction: 'RL',
         showFilters: false,
@@ -111,6 +112,7 @@ describe('catalog-graph alpha plugin', () => {
           selectedRelations: ['dependsOn'],
           unidirectional: false,
           mergeRelations: false,
+          groupByKind: true,
           direction: 'RL',
           showFilters: false,
           curve: 'curveStepBefore',
@@ -125,6 +127,7 @@ describe('catalog-graph alpha plugin', () => {
         expect(search.getAll('selectedRelations[]')).toEqual(['dependsOn']);
         expect(search.get('unidirectional')).toBe('false');
         expect(search.get('mergeRelations')).toBe('false');
+        expect(search.get('groupByKind')).toBe('true');
         expect(search.get('direction')).toBe('RL');
         expect(search.get('showFilters')).toBe('false');
         expect(search.get('curve')).toBe('curveStepBefore');

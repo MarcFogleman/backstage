@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PropsWithChildren } from 'react';
+import { MouseEvent, PropsWithChildren } from 'react';
 import {
   DEFAULT_NAMESPACE,
   Entity,
@@ -25,7 +25,7 @@ import {
 } from '@backstage/catalog-model';
 import { ApiProvider } from '@backstage/core-app-api';
 import { TestApiRegistry } from '@backstage/test-utils';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { filter, keyBy } from 'lodash';
 import { useEntityRelationGraph as useEntityRelationGraphMocked } from './useEntityRelationGraph';
 import { useEntityRelationNodesAndEdges } from './useEntityRelationNodesAndEdges';
@@ -731,6 +731,110 @@ describe('useEntityRelationNodesAndEdges', () => {
         relations: [RELATION_HAS_PART, RELATION_PART_OF],
         to: 'b:d/c2',
       },
+    ]);
+  });
+
+  test('should group nodes by kind and expand a group on click', async () => {
+    const ownedBy = (ref: string) => [
+      { targetRef: ref, type: RELATION_OWNED_BY },
+    ];
+    const groupedEntities: { [ref: string]: Entity } = {
+      'g:d/team': {
+        apiVersion: 'a',
+        kind: 'g',
+        metadata: { name: 'team', namespace: 'd' },
+        relations: ['r:d/r1', 'r:d/r2', 'c:d/c1'].map(targetRef => ({
+          targetRef,
+          type: RELATION_OWNER_OF,
+        })),
+      },
+      'r:d/r1': {
+        apiVersion: 'a',
+        kind: 'r',
+        metadata: { name: 'r1', namespace: 'd' },
+        relations: ownedBy('g:d/team'),
+      },
+      'r:d/r2': {
+        apiVersion: 'a',
+        kind: 'r',
+        metadata: { name: 'r2', namespace: 'd' },
+        relations: ownedBy('g:d/team'),
+      },
+      'c:d/c1': {
+        apiVersion: 'a',
+        kind: 'c',
+        metadata: { name: 'c1', namespace: 'd' },
+        relations: ownedBy('g:d/team'),
+      },
+    };
+    useEntityRelationGraph.mockReturnValue({
+      loading: false,
+      entities: groupedEntities,
+    });
+    const groupId = 'kind-group:1:r:g:d/team';
+
+    const { result } = renderHook(
+      () =>
+        useEntityRelationNodesAndEdges({
+          rootEntityRefs: ['g:d/team'],
+          groupByKind: true,
+        }),
+      { wrapper: GraphContext },
+    );
+
+    await waitFor(() => {
+      expect(result.current.nodes && result.current.edges).toBeDefined();
+    });
+
+    expect(result.current.nodes?.map(n => n.id)).toEqual([
+      'g:d/team',
+      'c:d/c1',
+      groupId,
+    ]);
+    const group = result.current.nodes?.find(n => n.id === groupId);
+    expect(group).toMatchObject({
+      color: 'primary',
+      focused: false,
+      entity: { kind: 'r', metadata: { title: 'r (2) ▸' } },
+    });
+    expect(result.current.edges).toEqual([
+      {
+        distance: 1,
+        from: 'g:d/team',
+        label: 'visible',
+        relations: [RELATION_OWNER_OF, RELATION_OWNED_BY],
+        to: groupId,
+      },
+      {
+        distance: 1,
+        from: 'g:d/team',
+        label: 'visible',
+        relations: [RELATION_OWNER_OF, RELATION_OWNED_BY],
+        to: 'c:d/c1',
+      },
+    ]);
+
+    act(() => group!.onClick!({} as MouseEvent<unknown>));
+
+    await waitFor(() => {
+      expect(result.current.nodes).toHaveLength(5);
+    });
+
+    expect(result.current.nodes?.map(n => n.id)).toEqual([
+      'g:d/team',
+      'r:d/r1',
+      'r:d/r2',
+      'c:d/c1',
+      groupId,
+    ]);
+    expect(
+      result.current.nodes?.find(n => n.id === groupId)?.entity.metadata.title,
+    ).toBe('r (2) ▾');
+    expect(result.current.edges?.map(e => [e.from, e.to])).toEqual([
+      ['g:d/team', groupId],
+      [groupId, 'r:d/r1'],
+      [groupId, 'r:d/r2'],
+      ['g:d/team', 'c:d/c1'],
     ]);
   });
 });
