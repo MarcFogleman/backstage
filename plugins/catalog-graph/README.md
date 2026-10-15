@@ -103,6 +103,26 @@ Once you have your custom implementation, you can follow these steps to modify t
 <EntityCatalogGraphCard variant=“gridItem” renderNode={MyCustomRenderNode} height={400} />
 ```
 
+### Grouping entities by kind
+
+An entity with many relations of the same kind, for example a group that owns hundreds of resources, produces a graph that is hard to read. The `groupByKind` option replaces entities of the same kind that are related to the same entities with a single node that shows the kind and the number of entities, such as `Resource (120)`. Clicking a group node expands it to show its members, and clicking it again collapses it. Entities that are only related to the members of a collapsed group are hidden until the group is expanded.
+
+Grouping is off by default. With the new frontend system, enable it in the configuration of the card and the page:
+
+```yaml
+# app-config.yaml
+app:
+  extensions:
+    - entity-card:catalog-graph/relations:
+        config:
+          groupByKind: true
+    - page:catalog-graph:
+        config:
+          groupByKind: true
+```
+
+With the old frontend system, pass the `groupByKind` prop to the `EntityCatalogGraphCard`, the `CatalogGraphPage` (as part of `initialState`), or your own `EntityRelationsGraph`. On the page, users can toggle grouping with the "Group by kind" filter.
+
 ### Custom relations
 
 Implementers with added custom relations can add them to the catalog graph plugin by overriding the default API. This also allows some relations to not be selected by default.
