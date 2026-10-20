@@ -100,7 +100,7 @@ export namespace DependencyGraphTypes {
    *
    * @public
    */
-  export type RenderEdgeProps<T = {}> = {
+  export type RenderEdgeProps<T = {}, NodeData = {}> = {
     edge: T & {
       points: { x: number; y: number }[];
       label?: string;
@@ -120,6 +120,27 @@ export namespace DependencyGraphTypes {
       w: string;
       name?: string | undefined;
     };
+    /**
+     * The nodes of the graph as laid out, keyed by node id
+     *
+     * @remarks
+     *
+     * `x` and `y` are the center of the node. Useful for edges that are drawn
+     * relative to nodes other than their own endpoints.
+     */
+    nodes: {
+      [id: string]: DependencyNode<NodeData> & {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
+    };
+    /**
+     * Renders the edge the way the graph would without a custom
+     * {@link DependencyGraphProps.renderEdge}, including its label
+     */
+    renderDefault: () => ReactNode;
   };
 
   /**
@@ -127,8 +148,8 @@ export namespace DependencyGraphTypes {
    *
    * @public
    */
-  export type RenderEdgeFunction<T = {}> = (
-    props: RenderEdgeProps<T>,
+  export type RenderEdgeFunction<T = {}, NodeData = {}> = (
+    props: RenderEdgeProps<T, NodeData>,
   ) => ReactNode;
 
   /**

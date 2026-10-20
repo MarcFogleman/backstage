@@ -127,6 +127,43 @@ describe('<DependencyGraph />', () => {
     expect(getByText(labeledEdge[0].label)).toBeInTheDocument();
   });
 
+  it('renders edges according to renderEdge prop', async () => {
+    const renderEdge = jest.fn((_props: Types.RenderEdgeProps) => (
+      <circle data-testid={CUSTOM_TEST_ID} r={10} />
+    ));
+    const { findAllByTestId, queryAllByTestId } = await renderInTestApp(
+      <DependencyGraph nodes={nodes} edges={edges} renderEdge={renderEdge} />,
+    );
+    expect(await findAllByTestId(CUSTOM_TEST_ID)).toHaveLength(2);
+    expect(queryAllByTestId(EDGE_TEST_ID)).toHaveLength(0);
+
+    const props = renderEdge.mock.calls[0][0];
+    expect(props.id).toMatchObject({ v: nodes[0].id, w: nodes[1].id });
+    expect(props.edge).toMatchObject({ from: nodes[0].id, to: nodes[1].id });
+    expect(Object.keys(props.nodes)).toEqual(nodes.map(node => node.id));
+    expect(props.nodes[nodes[2].id]).toMatchObject({
+      id: nodes[2].id,
+      x: expect.any(Number),
+      y: expect.any(Number),
+      width: expect.any(Number),
+      height: expect.any(Number),
+    });
+  });
+
+  it('renders the default edge when renderEdge calls renderDefault', async () => {
+    const renderEdge = ({ id, renderDefault }: Types.RenderEdgeProps) =>
+      id.v === nodes[0].id ? (
+        <circle data-testid={CUSTOM_TEST_ID} r={10} />
+      ) : (
+        renderDefault()
+      );
+    const { findAllByTestId, queryAllByTestId } = await renderInTestApp(
+      <DependencyGraph nodes={nodes} edges={edges} renderEdge={renderEdge} />,
+    );
+    expect(await findAllByTestId(CUSTOM_TEST_ID)).toHaveLength(1);
+    expect(queryAllByTestId(EDGE_TEST_ID)).toHaveLength(1);
+  });
+
   it('settles graph layout so nodes are visible after initial render', async () => {
     const { container, findAllByTestId } = await renderInTestApp(
       <DependencyGraph nodes={nodes} edges={edges} />,

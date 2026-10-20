@@ -15,6 +15,7 @@
  */
 
 import {
+  Fragment,
   SVGProps,
   useCallback,
   useEffect,
@@ -169,8 +170,15 @@ export interface DependencyGraphProps<NodeData, EdgeData>
   edgeWeight?: number;
   /**
    * Custom edge rendering component
+   *
+   * @remarks
+   *
+   * Receives the nodes of the graph as laid out, and a `renderDefault`
+   * function that renders the edge the way the graph otherwise would, so that
+   * an implementation can customize some edges and fall back to the default
+   * rendering for the rest.
    */
-  renderEdge?: Types.RenderEdgeFunction<EdgeData>;
+  renderEdge?: Types.RenderEdgeFunction<EdgeData, NodeData>;
   /**
    * Custom node rendering component
    */
@@ -545,6 +553,17 @@ export function DependencyGraph<NodeData, EdgeData>(
     [updateGraph],
   );
 
+  const layoutNodes = useMemo(() => {
+    const result: Types.RenderEdgeProps<EdgeData, NodeData>['nodes'] = {};
+    for (const id of graphNodes) {
+      const node = graph.current.node(id);
+      if (node) {
+        result[id] = node;
+      }
+    }
+    return result;
+  }, [graphNodes]);
+
   return (
     <FullScreen
       handle={fullScreenHandle}
@@ -618,11 +637,8 @@ export function DependencyGraph<NodeData, EdgeData>(
               {graphEdges.map(e => {
                 const edge = graph.current.edge(e) as GraphEdge<EdgeData>;
                 if (!edge) return null;
-                if (renderEdge) return renderEdge({ edge, id: e });
-
-                return (
+                const defaultEdge = (
                   <Edge
-                    key={`${e.v}-${e.w}`}
                     id={e}
                     setEdge={setEdge}
                     render={renderLabel}
@@ -630,6 +646,19 @@ export function DependencyGraph<NodeData, EdgeData>(
                     curve={curve}
                     showArrowHeads={showArrowHeads}
                   />
+                );
+
+                return (
+                  <Fragment key={`${e.v}-${e.w}`}>
+                    {renderEdge
+                      ? renderEdge({
+                          edge,
+                          id: e,
+                          nodes: layoutNodes,
+                          renderDefault: () => defaultEdge,
+                        })
+                      : defaultEdge}
+                  </Fragment>
                 );
               })}
               {graphNodes.map((id: string) => {

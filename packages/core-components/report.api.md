@@ -342,7 +342,7 @@ export interface DependencyGraphProps<NodeData, EdgeData>
   paddingY?: number;
   ranker?: DependencyGraphTypes.Ranker;
   rankMargin?: number;
-  renderEdge?: DependencyGraphTypes.RenderEdgeFunction<EdgeData>;
+  renderEdge?: DependencyGraphTypes.RenderEdgeFunction<EdgeData, NodeData>;
   renderLabel?: DependencyGraphTypes.RenderLabelFunction<EdgeData>;
   renderNode?: DependencyGraphTypes.RenderNodeFunction<NodeData>;
   showArrowHeads?: boolean;
@@ -421,10 +421,10 @@ export namespace DependencyGraphTypes {
     readonly DOWN_LEFT: 'DL';
     readonly DOWN_RIGHT: 'DR';
   };
-  export type RenderEdgeFunction<T = {}> = (
-    props: RenderEdgeProps<T>,
+  export type RenderEdgeFunction<T = {}, NodeData = {}> = (
+    props: RenderEdgeProps<T, NodeData>,
   ) => ReactNode;
-  export type RenderEdgeProps<T = {}> = {
+  export type RenderEdgeProps<T = {}, NodeData = {}> = {
     edge: T & {
       points: {
         x: number;
@@ -447,6 +447,15 @@ export namespace DependencyGraphTypes {
       w: string;
       name?: string | undefined;
     };
+    nodes: {
+      [id: string]: DependencyNode<NodeData> & {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
+    };
+    renderDefault: () => ReactNode;
   };
   const Ranker: {
     readonly NETWORK_SIMPLEX: 'network-simplex';
