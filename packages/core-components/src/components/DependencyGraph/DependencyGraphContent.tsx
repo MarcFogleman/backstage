@@ -35,6 +35,7 @@ import { DependencyGraphTypes as Types } from './types';
 import { Node } from './Node';
 import { Edge, GraphEdge } from './Edge';
 import { ARROW_MARKER_ID } from './constants';
+import { clampZoomTransform } from './clampZoomTransform';
 import IconButton from '@material-ui/core/IconButton';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
@@ -336,6 +337,28 @@ export function DependencyGraph<NodeData, EdgeData>(
     maxHeight,
   };
 
+  const zoomRef = useRef<{
+    behavior: d3Zoom.ZoomBehavior<SVGSVGElement, null>;
+    node: SVGSVGElement;
+  }>();
+
+  // Re-apply the clamp when the graph changes size, so that a transform that
+  // was valid for a larger graph does not leave a smaller one out of view.
+  useEffect(() => {
+    const current = zoomRef.current;
+    if (!current) {
+      return;
+    }
+    const transform = d3Zoom.zoomTransform(current.node);
+    const clamped = clampZoomTransform(transform, { maxWidth, maxHeight });
+    if (clamped.x !== transform.x || clamped.y !== transform.y) {
+      current.behavior.transform(
+        d3Selection.select(current.node),
+        d3Zoom.zoomIdentity.translate(clamped.x, clamped.y).scale(transform.k),
+      );
+    }
+  }, [maxWidth, maxHeight]);
+
   const [_measureRef] = useMeasure();
   const measureRef = once(_measureRef);
 
@@ -361,29 +384,20 @@ export function DependencyGraph<NodeData, EdgeData>(
         const workspace = d3Selection.select(node.getElementById(WORKSPACE_ID));
 
         function enableZoom() {
-          container.call(
-            d3Zoom
-              .zoom<SVGSVGElement, null>()
-              .scaleExtent([1, Infinity])
-              .on('zoom', event => {
-                const dims = dimensionsRef.current;
-                event.transform.x = Math.min(
-                  0,
-                  Math.max(
-                    event.transform.x,
-                    dims.maxWidth - dims.maxWidth * event.transform.k,
-                  ),
-                );
-                event.transform.y = Math.min(
-                  0,
-                  Math.max(
-                    event.transform.y,
-                    dims.maxHeight - dims.maxHeight * event.transform.k,
-                  ),
-                );
-                workspace.attr('transform', event.transform);
-              }),
-          );
+          const behavior = d3Zoom
+            .zoom<SVGSVGElement, null>()
+            .scaleExtent([1, Infinity])
+            .on('zoom', event => {
+              const clamped = clampZoomTransform(
+                event.transform,
+                dimensionsRef.current,
+              );
+              event.transform.x = clamped.x;
+              event.transform.y = clamped.y;
+              workspace.attr('transform', event.transform);
+            });
+          container.call(behavior);
+          zoomRef.current = { behavior, node };
         }
 
         if (zoom === 'enabled') {
