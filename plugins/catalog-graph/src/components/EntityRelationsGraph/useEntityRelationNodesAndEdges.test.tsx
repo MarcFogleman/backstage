@@ -30,6 +30,7 @@ import { filter, keyBy } from 'lodash';
 import { useEntityRelationGraph as useEntityRelationGraphMocked } from './useEntityRelationGraph';
 import { useEntityRelationNodesAndEdges } from './useEntityRelationNodesAndEdges';
 import { EntityNode } from '../../lib/types';
+import { TransformationContext } from '../../lib/graph-transformations';
 import { catalogGraphApiRef, DefaultCatalogGraphApi } from '../../api';
 
 jest.mock('./useEntityRelationGraph');
@@ -732,5 +733,42 @@ describe('useEntityRelationNodesAndEdges', () => {
         to: 'b:d/c2',
       },
     ]);
+  });
+
+  test('should apply custom transformations after the built-in ones', async () => {
+    const transformation = jest.fn((context: TransformationContext) => {
+      context.nodes = context.nodes.filter(node => node.id !== 'b:d/c2');
+      context.edges = context.edges.filter(
+        edge => edge.from !== 'b:d/c2' && edge.to !== 'b:d/c2',
+      );
+    });
+    const transformations = [transformation];
+
+    const { result } = renderHook(
+      () =>
+        useEntityRelationNodesAndEdges({
+          rootEntityRefs: ['b:d/c'],
+          transformations,
+        }),
+      { wrapper: GraphContext },
+    );
+
+    await waitFor(() => {
+      expect(result.current.nodes && result.current.edges).toBeDefined();
+    });
+
+    expect(transformation).toHaveBeenCalled();
+    const context = transformation.mock.calls[0][0];
+    expect(context.nodeDistances.get('b:d/c2')).toBe(2);
+    expect(result.current.nodes?.map(node => node.id)).toEqual([
+      'b:d/c',
+      'k:d/a1',
+      'b:d/c1',
+    ]);
+    expect(
+      result.current.edges?.some(
+        edge => edge.from === 'b:d/c2' || edge.to === 'b:d/c2',
+      ),
+    ).toBe(false);
   });
 });

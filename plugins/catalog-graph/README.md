@@ -103,6 +103,34 @@ Once you have your custom implementation, you can follow these steps to modify t
 <EntityCatalogGraphCard variant=“gridItem” renderNode={MyCustomRenderNode} height={400} />
 ```
 
+### Custom graph transformations
+
+The nodes and edges of the graph go through a series of transformations before they are rendered, for example to compute the distance of each entity from the root entities, or to merge relations. You can add your own transformations, which run after the built-in ones, by passing a `transformations` array to `EntityRelationsGraph`, `EntityCatalogGraphCard` or `CatalogGraphPage`. Each transformation receives a `TransformationContext` and modifies its `nodes` and `edges` in place:
+
+```tsx
+import {
+  CatalogGraphPage,
+  GraphTransformer,
+} from '@backstage/plugin-catalog-graph';
+
+const dimDistantNodes: GraphTransformer = context => {
+  for (const node of context.nodes) {
+    if ((context.nodeDistances.get(node.id) ?? 0) > 1) {
+      node.color = 'default';
+    }
+  }
+};
+
+const transformations = [dimDistantNodes];
+
+<Route
+  path="/catalog-graph"
+  element={<CatalogGraphPage transformations={transformations} />}
+/>;
+```
+
+Define the array outside of the component or memoize it, since a new array on every render recomputes the graph.
+
 ### Custom relations
 
 Implementers with added custom relations can add them to the catalog graph plugin by overriding the default API. This also allows some relations to not be selected by default.

@@ -33,6 +33,7 @@ import { DefaultRenderNode } from './DefaultRenderNode';
 import { RelationPairs } from '../../lib/types';
 import { Direction, EntityEdge, EntityNode } from '../../lib/types';
 import { useEntityRelationNodesAndEdges } from './useEntityRelationNodesAndEdges';
+import { GraphTransformer } from '../../lib/graph-transformations';
 
 /** @public */
 export type EntityRelationsGraphClassKey = 'progress' | 'container' | 'graph';
@@ -93,6 +94,17 @@ export type EntityRelationsGraphProps = {
   curve?: 'curveStepBefore' | 'curveMonotoneX';
   showArrowHeads?: boolean;
   allowFullscreen?: boolean;
+  /**
+   * Additional graph transformations, applied after the built-in ones.
+   *
+   * @remarks
+   *
+   * Each transformation receives the {@link TransformationContext} and
+   * modifies its `nodes` and `edges` in place. Pass a stable array, for
+   * example one defined outside the component or memoized, since a new array
+   * on every render recomputes the graph.
+   */
+  transformations?: GraphTransformer[];
 };
 
 /**
@@ -120,6 +132,7 @@ export const EntityRelationsGraph = (props: EntityRelationsGraphProps) => {
     curve,
     showArrowHeads,
     allowFullscreen,
+    transformations,
   } = props;
 
   const theme = useTheme();
@@ -143,6 +156,7 @@ export const EntityRelationsGraph = (props: EntityRelationsGraphProps) => {
     entityFilter,
     onNodeClick,
     relationPairs,
+    transformations,
   });
 
   useEffect(() => {

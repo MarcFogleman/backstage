@@ -41,6 +41,7 @@ export function useEntityRelationNodesAndEdges({
   entityFilter,
   onNodeClick,
   relationPairs: incomingRelationPairs,
+  transformations,
 }: {
   rootEntityRefs: string[];
   maxDepth?: number;
@@ -51,6 +52,7 @@ export function useEntityRelationNodesAndEdges({
   entityFilter?: (entity: Entity) => boolean;
   onNodeClick?: (value: EntityNode, event: MouseEvent<unknown>) => void;
   relationPairs?: RelationPairs;
+  transformations?: GraphTransformer[];
 }): {
   loading: boolean;
   nodes?: EntityNode[];
@@ -150,6 +152,7 @@ export function useEntityRelationNodesAndEdges({
         runTransformation('order-forward');
         runTransformation('remove-backward-edges');
       }
+      transformations?.forEach(runTransformation);
 
       setNodesAndEdges({
         nodes: transformationContext.nodes,
@@ -167,6 +170,7 @@ export function useEntityRelationNodesAndEdges({
       mergeRelations,
       onNodeClick,
       relationPairs,
+      transformations,
     ],
   );
 

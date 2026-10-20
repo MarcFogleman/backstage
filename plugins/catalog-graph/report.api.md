@@ -225,7 +225,11 @@ export type EntityRelationsGraphProps = {
   curve?: 'curveStepBefore' | 'curveMonotoneX';
   showArrowHeads?: boolean;
   allowFullscreen?: boolean;
+  transformations?: GraphTransformer[];
 };
+
+// @public
+export type GraphTransformer = (context: TransformationContext) => void;
 
 // @public
 export type RelationPairs = [string, string][];
